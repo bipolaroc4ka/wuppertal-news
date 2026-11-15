@@ -1,0 +1,21 @@
+{
+  "name": "wuppertal-news",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Автоматический сбор, перевод и модерация новостей Вупперталя для Telegram-канала на Cloudflare Workers",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --test-scheduled",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "types": "wrangler types",
+    "db:migrate:local": "wrangler d1 migrations apply wuppertal-news --local",
+    "db:migrate:remote": "wrangler d1 migrations apply wuppertal-news --remote",
+    "logs": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250101.0",
+    "typescript": "^5.6.0",
+    "wrangler": "^4.0.0"
+  }
+}
