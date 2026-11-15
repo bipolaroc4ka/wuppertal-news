@@ -1,8 +1,9 @@
-import type { Env } from "./env";
-import { getSetting, setSetting } from "./db/settings";
-import { logError, purgeOldErrors } from "./db/errors";
-import { log } from "./utils/log";
-import { nowIso } from "./utils/time";
+import type { Env } from "./env.ts";
+import { getSetting, setSetting } from "./db/settings.ts";
+import { logError, purgeOldErrors } from "./db/errors.ts";
+import { pollNextSource } from "./news/collectors.ts";
+import { log } from "./utils/log.ts";
+import { nowIso } from "./utils/time.ts";
 
 /** Расписание из wrangler.jsonc: ежедневное обслуживание. */
 export const CRON_DAILY = "0 3 * * *";
@@ -24,8 +25,9 @@ export async function handleScheduled(event: ScheduledController, env: Env): Pro
 }
 
 /**
- * Тик конвейера (каждую минуту). На этапе 1 фиксирует heartbeat и считает
- * источники, у которых наступило время проверки. Сбор новостей добавляется на этапе 2.
+ * Тик конвейера (каждую минуту): heartbeat и опрос одного источника, у которого
+ * наступило время проверки. Дальнейшие шаги (AI, отправка в Telegram) добавляются
+ * на следующих этапах в том же порядке приоритета.
  */
 async function runTick(env: Env): Promise<void> {
   const paused = (await getSetting(env.DB, "paused")) === "1";
@@ -34,12 +36,8 @@ async function runTick(env: Env): Promise<void> {
     log("info", "tick_paused");
     return;
   }
-  const row = await env.DB
-    .prepare(
-      "SELECT COUNT(*) AS due FROM sources WHERE is_active = 1 AND next_check_at <= datetime('now')",
-    )
-    .first<{ due: number }>();
-  log("info", "tick", { sources_due: row?.due ?? 0 });
+  const poll = await pollNextSource(env);
+  log("info", "tick", poll ? { poll: poll.status, source: poll.source, inserted: poll.inserted } : { poll: "idle" });
 }
 
 /** Ежедневное обслуживание (03:00 UTC): чистка журнала ошибок. */
