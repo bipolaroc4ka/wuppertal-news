@@ -17,7 +17,7 @@
       "binding": "DB",
       "database_name": "wuppertal-news",
       // Подставьте database_id из вывода команды: npx wrangler d1 create wuppertal-news
-      "database_id": "REPLACE_WITH_DATABASE_ID",
+      "database_id": "12a47948-5079-45dc-8f1f-0d5ca8f3d8f8",
       "migrations_dir": "migrations"
     }
   ]
