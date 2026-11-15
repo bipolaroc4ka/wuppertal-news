@@ -1,8 +1,8 @@
-import type { Env } from "./env";
-import { handleScheduled } from "./cron";
-import { getSetting } from "./db/settings";
-import { logError } from "./db/errors";
-import { ageSeconds } from "./utils/time";
+import type { Env } from "./env.ts";
+import { handleScheduled } from "./cron.ts";
+import { getSetting } from "./db/settings.ts";
+import { logError } from "./db/errors.ts";
+import { ageSeconds } from "./utils/time.ts";
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
 
